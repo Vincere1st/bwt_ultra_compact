@@ -1,4 +1,4 @@
-# BWT Ultra Compact Devstral Home Assistant Integration
+# BWT Ultra Compact Home Assistant Integration
 
 This is a custom Home Assistant integration for the BWT CPED Ultra Compact water softener.
 
@@ -15,10 +15,10 @@ This is a custom Home Assistant integration for the BWT CPED Ultra Compact water
 
 ### Manual Installation
 
-1. Copy the `bwt_ultra_compact_devstral` folder to your Home Assistant's `custom_components` directory
+1. Copy the `bwt_ultra_compact` folder to your Home Assistant's `custom_components` directory
 2. Restart Home Assistant
 3. Go to **Settings** > **Devices & Services** > **Add Integration**
-4. Search for "BWT Ultra Compact Devstral" and add it
+4. Search for "BWT Ultra Compact" and add it
 5. Enter your device's MAC address and passkey
 
 ### HACS Installation (Recommended)
@@ -62,3 +62,8 @@ This integration uses the BLE (Bluetooth Low Energy) protocol to communicate wit
 ## License
 
 MIT License
+
+
+## THANKS
+Thanks to Mistral to permitted developpers to use the devstral2 for free with a period time.
+ 
