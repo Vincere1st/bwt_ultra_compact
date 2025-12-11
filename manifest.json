@@ -1,8 +1,8 @@
 {
   "domain": "bwt_ultra_compact",
   "name": "BWT Ultra Compact",
-  "documentation": "https://github.com/Vincere1st/hacs_bwt_ultra_compact",
-  "issue_tracker": "https://github.com/Vincere1st/hacs_bwt_ultra_compact/issues",
+  "documentation": "https://github.com/Vincere1st/bwt_ultra_compact",
+  "issue_tracker": "https://github.com/Vincere1st/bwt_ultra_compact/issues",
   "dependencies": ["bluetooth"],
   "codeowners": ["@Vincere1st"],
   "requirements": ["bleak==0.21.0"],
