@@ -8,6 +8,6 @@
   "requirements": ["bleak==0.21.0"],
   "config_flow": true,
   "iot_class": "local_polling",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homeassistant": "2025.12.0"
 }

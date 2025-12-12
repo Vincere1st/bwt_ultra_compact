@@ -20,6 +20,8 @@ from .const import (
     DEFAULT_NAME,
 )
 
+from .ble_coordinator import BWTCoordinator
+
 _LOGGER = logging.getLogger(__name__)
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
