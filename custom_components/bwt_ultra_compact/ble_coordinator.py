@@ -30,13 +30,25 @@ class BWTCoordinator:
         self._is_connected = False
 
     async def connect(self) -> bool:
-        """Connect to the BWT device."""
+        """Connect to the BWT device using HA Bluetooth stack."""
         _LOGGER.info("Attempting to connect to BWT device: %s", self.mac_address)
 
         try:
-            # Create client with passkey
+            # Use HA's Bluetooth manager to get the device
+            from homeassistant.components import bluetooth
+            ble_device = bluetooth.async_ble_device_from_address(
+                self.hass, self.mac_address.upper(), connectable=True
+            )
+
+            if not ble_device:
+                _LOGGER.error("Bluetooth device not found: %s", self.mac_address)
+                return False
+
+            _LOGGER.debug("Found Bluetooth device: %s", ble_device.name or ble_device.address)
+
+            # Create client using HA's Bluetooth stack
             self._client = BleakClient(
-                self.mac_address,
+                ble_device,
                 timeout=30.0,
                 disconnected_callback=self._handle_disconnect
             )
@@ -44,11 +56,9 @@ class BWTCoordinator:
             _LOGGER.debug("Connecting to device...")
             await self._client.connect()
 
-            _LOGGER.debug("Connection established, pairing...")
-            await self._client.pair(passkey=self.passkey)
-
-            _LOGGER.debug("Pairing successful, discovering services...")
-            await self._client.discover_services()
+            # Note: HA's BleakClientWrapper doesn't support discover_services()
+            # Services are automatically discovered by HA's Bluetooth stack
+            _LOGGER.debug("Connection established successfully")
 
             self._is_connected = True
             _LOGGER.info("Successfully connected to BWT device: %s", self.mac_address)
