@@ -1,4 +1,4 @@
-"""Config flow for BWT Ultra Compact integration."""
+"""Config flow for BWT Minimal Test integration."""
 from __future__ import annotations
 
 from typing import Any
@@ -8,8 +8,8 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 
-class BWTConfigFlow(config_entries.ConfigFlow, domain="bwt_ultra_compact"):
-    """Handle a config flow for BWT Ultra Compact."""
+class BWTMinimalConfigFlow(config_entries.ConfigFlow, domain="bwt_minimal"):
+    """Handle a config flow for BWT Minimal Test."""
 
     VERSION = 1
 
@@ -21,11 +21,7 @@ class BWTConfigFlow(config_entries.ConfigFlow, domain="bwt_ultra_compact"):
             return self.async_show_form(
                 step_id="user",
                 data_schema=vol.Schema({
-                    vol.Required("mac_address"): str,
-                    vol.Required("passkey", default="123456"): str,
+                    vol.Required("test_field"): str,
                 }),
             )
-        return self.async_create_entry(
-            title=f"BWT Ultra Compact ({user_input['mac_address']})",
-            data=user_input
-        )
+        return self.async_create_entry(title="BWT Minimal Test", data=user_input)

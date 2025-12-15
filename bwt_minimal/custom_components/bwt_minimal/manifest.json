@@ -1,0 +1,9 @@
+{
+  "domain": "bwt_minimal",
+  "name": "BWT Minimal Test",
+  "documentation": "https://github.com/Vincere1st/bwt_minimal",
+  "issue_tracker": "https://github.com/Vincere1st/bwt_minimal/issues",
+  "config_flow": true,
+  "version": "1.0.0",
+  "homeassistant": "2025.12.0"
+}
