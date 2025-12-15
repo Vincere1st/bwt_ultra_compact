@@ -7,6 +7,7 @@ from typing import Optional
 
 from bleak import BleakClient, BleakError
 from bleak.backends.device import BLEDevice
+from bleak_retry_connector import establish_connection
 
 from .const import (
     BLE_SERVICE_UUID,
@@ -28,10 +29,13 @@ class BWTCoordinator:
         self._client: Optional[BleakClient] = None
         self._device: Optional[BLEDevice] = None
         self._is_connected = False
+        self._retry_count = 0
+        self._max_retries = 3
 
     async def connect(self) -> bool:
-        """Connect to the BWT device using HA Bluetooth stack."""
-        _LOGGER.info("Attempting to connect to BWT device: %s", self.mac_address)
+        """Connect to the BWT device using bleak-retry-connector for reliability."""
+        _LOGGER.info("Attempting to connect to BWT device: %s (attempt %d/%d)",
+                    self.mac_address, self._retry_count + 1, self._max_retries)
 
         try:
             # Use HA's Bluetooth manager to get the device
@@ -46,23 +50,38 @@ class BWTCoordinator:
 
             _LOGGER.debug("Found Bluetooth device: %s", ble_device.name or ble_device.address)
 
-            # Create client using HA's Bluetooth stack
-            self._client = BleakClient(
+            # Use bleak-retry-connector for reliable connection with automatic retries
+            def connection_callback(client: BleakClient):
+                """Callback when connection is established."""
+                _LOGGER.debug("Connection established via bleak-retry-connector")
+                self._client = client
+                self._is_connected = True
+                return True
+
+            def disconnection_callback(client: BleakClient):
+                """Callback when connection is lost."""
+                _LOGGER.warning("Connection lost via bleak-retry-connector")
+                self._is_connected = False
+                self._client = None
+                return True
+
+            # Establish connection with retry mechanism
+            self._client = await establish_connection(
+                BleakClient,
                 ble_device,
+                self.mac_address,
+                connection_callback=connection_callback,
+                disconnection_callback=disconnection_callback,
+                max_attempts=self._max_retries,
                 timeout=30.0,
-                disconnected_callback=self._handle_disconnect
+                auto_connect=False
             )
 
-            _LOGGER.debug("Connecting to device...")
-            await self._client.connect()
+            if not self._client or not self._is_connected:
+                _LOGGER.error("Failed to establish connection after %d attempts", self._max_retries)
+                return False
 
-            # Note: HA's BleakClientWrapper doesn't support discover_services()
-            # Services are automatically discovered by HA's Bluetooth stack
-            _LOGGER.debug("Connection established successfully")
-
-            self._is_connected = True
             _LOGGER.info("Successfully connected to BWT device: %s", self.mac_address)
-
             return True
 
         except BleakError as err:

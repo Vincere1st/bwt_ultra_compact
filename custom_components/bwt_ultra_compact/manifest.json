@@ -3,6 +3,8 @@
   "name": "BWT Ultra Compact",
   "documentation": "https://github.com/Vincere1st/bwt_ultra_compact",
   "issue_tracker": "https://github.com/Vincere1st/bwt_ultra_compact/issues",
+  "dependencies": ["bleak"],
+  "requirements": ["bleak-retry-connector==2.0.0"],
   "config_flow": true,
   "version": "1.0.0",
   "homeassistant": "2025.12.0"
