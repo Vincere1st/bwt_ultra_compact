@@ -28,7 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Test Bluetooth connection using HA native methods
     _LOGGER.warning("🔍 Testing Bluetooth connection using HA native methods...")
-    await _test_bluetooth_connection(hass, entry.data[CONF_MAC_ADDRESS])
+    await _test_bluetooth_connection(hass, entry.data[CONF_MAC_ADDRESS], entry)
 
     # Forward setup to platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -42,7 +42,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
     return True
 
-async def _test_bluetooth_connection(hass, mac_address: str) -> None:
+async def _test_bluetooth_connection(hass, mac_address: str, entry) -> None:
     """Test Bluetooth connection using HA native methods."""
     try:
         from homeassistant.components import bluetooth
