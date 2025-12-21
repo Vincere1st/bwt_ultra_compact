@@ -1,6 +1,8 @@
 """Binary sensor platform for BWT Ultra Compact integration."""
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorDeviceClass,
@@ -11,26 +13,42 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 
+_LOGGER = logging.getLogger(__name__)
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the BWT Ultra Compact binary sensors."""
-    _LOGGER = hass.components.logger.get_logger(__name__)
+    # Check if already setup to avoid duplicate configuration
+    if DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
+        entry_data = hass.data[DOMAIN][entry.entry_id]
+        if entry_data.get("binary_sensor_setup", False):
+            _LOGGER.warning("⚠️ Binary sensor already configured, skipping setup")
+            return
+
     _LOGGER.warning("🔄 Setting up BWT Ultra Compact binary sensors")
 
     # Create connection status sensor
-    connection_sensor = BWTConnectionSensor(entry)
+    connection_sensor = BWTConnectionSensor(hass, entry)
     async_add_entities([connection_sensor])
+
+    # Mark as setup to prevent duplicate configuration
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+    if entry.entry_id not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][entry.entry_id] = {}
+    hass.data[DOMAIN][entry.entry_id]["binary_sensor_setup"] = True
 
     _LOGGER.warning("✅ BWT Ultra Compact binary sensors setup completed")
 
 class BWTConnectionSensor(BinarySensorEntity):
     """Representation of a BWT Ultra Compact connection status sensor."""
 
-    def __init__(self, entry: ConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize the connection sensor."""
+        self.hass = hass
         self._entry = entry
         self._attr_name = f"BWT Ultra Compact Connection"
         self._attr_unique_id = f"bwt_ultra_compact_connection_{entry.entry_id}"
@@ -38,8 +56,8 @@ class BWTConnectionSensor(BinarySensorEntity):
         self._attr_is_on = False  # Default to disconnected
 
         # Get initial connection status from stored data
-        if DOMAIN in self._entry.runtime_data.hass.data:
-            entry_data = self._entry.runtime_data.hass.data[DOMAIN].get(entry.entry_id, {})
+        if DOMAIN in hass.data:
+            entry_data = hass.data[DOMAIN].get(entry.entry_id, {})
             self._update_connection_status(entry_data.get("connection_status", "initializing"))
 
     def _update_connection_status(self, status: str) -> None:
@@ -59,8 +77,6 @@ class BWTConnectionSensor(BinarySensorEntity):
 
     async def async_update(self) -> None:
         """Update the connection status."""
-        _LOGGER = self.hass.components.logger.get_logger(__name__)
-
         if DOMAIN in self.hass.data:
             entry_data = self.hass.data[DOMAIN].get(self._entry.entry_id, {})
             current_status = entry_data.get("connection_status", "initializing")
