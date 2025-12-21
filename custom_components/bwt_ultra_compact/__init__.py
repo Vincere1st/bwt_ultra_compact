@@ -6,13 +6,14 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.helpers.entity_platform import async_get_current_platform
+from homeassistant.helpers.entity_platform import async_get_current_platform
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, CONF_MAC_ADDRESS, CONF_PASSKEY
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up BWT Ultra Compact from a config entry."""
