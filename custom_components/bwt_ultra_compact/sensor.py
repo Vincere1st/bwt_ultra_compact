@@ -45,7 +45,8 @@ class BWTSaltLevelSensor(SensorEntity):
         self._attr_name = "BWT Ultra Compact Salt Level"
         self._attr_unique_id = f"bwt_ultra_compact_salt_level_{entry.entry_id}"
         self._attr_device_class = SensorDeviceClass.ENUM
-        self._attr_state_class = SensorStateClass.MEASUREMENT
+        # For ENUM device class, state_class should be None
+        self._attr_state_class = None
         self._attr_native_value = None
         self._attr_options = ["1", "2", "3", "4", "5"]
         self._attr_icon = "mdi:salt"
