@@ -118,6 +118,11 @@ class BWTSaltLevelSensor(SensorEntity):
             self._attr_icon = "mdi:salt-question"
 
     @property
+    def native_value(self) -> int | None:
+        """Return the native value of the sensor."""
+        return self._attr_native_value
+
+    @property
     def extra_state_attributes(self) -> dict[str, str]:
         """Return additional state attributes."""
         return {
