@@ -51,8 +51,8 @@ class BWTSaltLevelSensor(SensorEntity):
         self._attr_options = ["1", "2", "3", "4", "5"]
         self._attr_icon = "mdi:salt"
 
-        # Initialize salt level
-        self._attr_native_value = 3  # Default to medium level
+        # Initialize salt level (must be string for ENUM device class)
+        self._attr_native_value = "3"  # Default to medium level
 
         _LOGGER.warning("🧂 BWT Salt Level Sensor initialized (default: level 3)")
 
@@ -91,8 +91,8 @@ class BWTSaltLevelSensor(SensorEntity):
             # For now, simulate a successful read with default value
             simulated_salt_level = 3  # Default medium level
 
-            # Update sensor state
-            self._attr_native_value = simulated_salt_level
+            # Update sensor state (convert to string for ENUM device class)
+            self._attr_native_value = str(simulated_salt_level)
             self._update_salt_icon(simulated_salt_level)
 
             _LOGGER.warning(f"🧂 Salt level updated: {simulated_salt_level}/5")
@@ -118,7 +118,7 @@ class BWTSaltLevelSensor(SensorEntity):
             self._attr_icon = "mdi:salt-question"
 
     @property
-    def native_value(self) -> int | None:
+    def native_value(self) -> str | None:
         """Return the native value of the sensor."""
         return self._attr_native_value
 
