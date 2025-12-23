@@ -31,8 +31,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.warning("🔍 Testing Bluetooth connection using HA native methods...")
     await _test_bluetooth_connection(hass, entry.data[CONF_MAC_ADDRESS], entry)
 
-    # Forward setup to platforms
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # Setup platforms manually to avoid duplicate configuration issues
+    _LOGGER.warning("🔄 Setting up platforms manually...")
+    await hass.config_entries.async_forward_entry_setups(entry, [Platform.BINARY_SENSOR])
+
+    # Setup sensor platform separately with error handling
+    try:
+        await hass.config_entries.async_forward_entry_setups(entry, [Platform.SENSOR])
+    except ValueError as e:
+        if "has already been setup" in str(e):
+            _LOGGER.warning("⚠️ Sensor platform already configured, skipping")
+        else:
+            raise
 
     _LOGGER.warning("✅ BWT Ultra Compact integration setup completed successfully")
     return True

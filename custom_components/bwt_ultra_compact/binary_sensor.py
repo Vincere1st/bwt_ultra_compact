@@ -21,25 +21,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the BWT Ultra Compact binary sensors."""
-    # Check if already setup to avoid duplicate configuration
-    if DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
-        entry_data = hass.data[DOMAIN][entry.entry_id]
-        if entry_data.get("binary_sensor_setup", False):
-            _LOGGER.warning("⚠️ Binary sensor already configured, skipping setup")
-            return
-
     _LOGGER.warning("🔄 Setting up BWT Ultra Compact binary sensors")
 
     # Create connection status sensor
     connection_sensor = BWTConnectionSensor(hass, entry)
     async_add_entities([connection_sensor])
-
-    # Mark as setup to prevent duplicate configuration
-    if DOMAIN not in hass.data:
-        hass.data[DOMAIN] = {}
-    if entry.entry_id not in hass.data[DOMAIN]:
-        hass.data[DOMAIN][entry.entry_id] = {}
-    hass.data[DOMAIN][entry.entry_id]["binary_sensor_setup"] = True
 
     _LOGGER.warning("✅ BWT Ultra Compact binary sensors setup completed")
 
