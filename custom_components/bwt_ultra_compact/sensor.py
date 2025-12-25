@@ -78,40 +78,64 @@ class BWTSaltLevelSensor(SensorEntity):
             # Read salt level from BLE characteristic
             _LOGGER.warning("📖 Reading salt level from BLE characteristic...")
 
-            # Try to read the characteristic using available methods
+            # Read salt level from BLE characteristic
+            _LOGGER.warning("📖 Reading salt level from BLE characteristic...")
+
+            # Try using bleak with retry connector for reliable connection
             try:
-                # Try using bleak if available
-                try:
-                    import bleak
-                    from bleak import BleakClient
+                import bleak
+                from bleak import BleakClient
+                from bleak_retry_connector import establish_connection
 
-                    # Connect to the device using bleak
-                    async with BleakClient(ble_device.address) as client:
-                        if client.is_connected:
-                            # Read the characteristic
-                            salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
-                            _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
+                # Use bleak-retry-connector for reliable connection
+                _LOGGER.warning("🔄 Establishing reliable BLE connection...")
 
-                            # Parse the salt level from BLE data
-                            salt_level = self._parse_salt_level(salt_data)
+                # Establish connection with retry
+                client = await establish_connection(
+                    BleakClient,
+                    ble_device.address,
+                    ble_device.name,
+                    max_attempts=3,
+                    timeout=10.0
+                )
 
-                            # Update sensor state (convert to string for ENUM device class)
-                            self._attr_native_value = str(salt_level)
-                            self._update_salt_icon(salt_level)
+                if client and client.is_connected:
+                    try:
+                        # Read the characteristic
+                        salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
+                        _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
 
-                            _LOGGER.warning(f"🧂 Salt level updated: {salt_level}/5")
-                        else:
-                            _LOGGER.error("❌ Failed to connect to BLE device using bleak")
-                            self._attr_native_value = None
-                            self._attr_icon = "mdi:salt-alert"
+                        # Parse the salt level from BLE data
+                        salt_level = self._parse_salt_level(salt_data)
 
-                except ImportError:
-                    _LOGGER.error("❌ bleak library not available, using fallback method")
+                        # Update sensor state (convert to string for ENUM device class)
+                        self._attr_native_value = str(salt_level)
+                        self._update_salt_icon(salt_level)
+
+                        _LOGGER.warning(f"🧂 Salt level updated: {salt_level}/5")
+
+                    except Exception as read_err:
+                        _LOGGER.error("⚠️ Error reading BLE characteristic: %s", read_err)
+                        self._attr_native_value = None
+                        self._attr_icon = "mdi:salt-alert"
+
+                    finally:
+                        # Disconnect from the device
+                        await client.disconnect()
+
+                else:
+                    _LOGGER.error("❌ Failed to connect to BLE device using bleak-retry-connector")
                     self._attr_native_value = None
                     self._attr_icon = "mdi:salt-alert"
 
-            except Exception as read_err:
-                _LOGGER.error("⚠️ Error reading BLE characteristic: %s", read_err)
+            except ImportError as import_err:
+                _LOGGER.error("❌ bleak or bleak-retry-connector not available: %s", import_err)
+                _LOGGER.warning("💡 Please install bleak and bleak-retry-connector")
+                self._attr_native_value = None
+                self._attr_icon = "mdi:salt-alert"
+
+            except Exception as err:
+                _LOGGER.error("⚠️ Error reading salt level: %s", err)
                 self._attr_native_value = None
                 self._attr_icon = "mdi:salt-alert"
 
