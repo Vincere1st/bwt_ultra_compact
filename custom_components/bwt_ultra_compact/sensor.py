@@ -143,8 +143,8 @@ class BWTSaltLevelSensor(SensorEntity):
                 error_msg = str(err)
                 _LOGGER.error("⚠️ Error reading salt level (raw): %s", err)
                 _LOGGER.error("⚠️ Error type: %s", type(err))
-                _LOGGER.error("⚠️ Error has details: %s", hasattr(err, 'details'))
-                if hasattr(err, 'details'):
+                # Check if err is an object (not a string) before checking for details
+                if not isinstance(err, str) and hasattr(err, 'details'):
                     error_msg = f"{error_msg} - Details: {err.details}"
                 _LOGGER.error("⚠️ Error reading salt level: %s", error_msg)
                 self._attr_native_value = None
