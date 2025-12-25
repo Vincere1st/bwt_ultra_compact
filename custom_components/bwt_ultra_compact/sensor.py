@@ -58,13 +58,16 @@ class BWTSaltLevelSensor(SensorEntity):
 
     async def async_update(self) -> None:
         """Update the salt level from BWT device."""
+        _LOGGER.debug("🔍 TRACE: Starting async_update")
         try:
             from homeassistant.components import bluetooth
 
             mac_address = self._entry.data[CONF_MAC_ADDRESS]
+            _LOGGER.debug(f"🔍 TRACE: mac_address = {mac_address}")
             _LOGGER.warning(f"🔄 Updating salt level for device {mac_address}")
 
             # Get Bluetooth device
+            _LOGGER.debug("🔍 TRACE: Getting Bluetooth device")
             ble_device = bluetooth.async_ble_device_from_address(
                 self.hass, mac_address.upper(), connectable=True
             )
@@ -76,6 +79,7 @@ class BWTSaltLevelSensor(SensorEntity):
                 return
 
             # Read salt level from BLE characteristic
+            _LOGGER.debug("🔍 TRACE: Reading salt level from BLE characteristic")
             _LOGGER.warning("📖 Reading salt level from BLE characteristic...")
 
             # Read salt level from BLE characteristic
@@ -88,9 +92,11 @@ class BWTSaltLevelSensor(SensorEntity):
                 from bleak_retry_connector import establish_connection
 
                 # Use bleak-retry-connector for reliable connection
+                _LOGGER.debug("🔍 TRACE: Establishing reliable BLE connection")
                 _LOGGER.warning("🔄 Establishing reliable BLE connection...")
 
                 # Establish connection with retry
+                _LOGGER.debug("🔍 TRACE: Establishing connection with retry")
                 client = await establish_connection(
                     BleakClient,
                     ble_device.address,
@@ -102,13 +108,17 @@ class BWTSaltLevelSensor(SensorEntity):
                 if client and client.is_connected:
                     try:
                         # Read the characteristic
+                        _LOGGER.debug("🔍 TRACE: Reading characteristic")
                         salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
+                        _LOGGER.debug(f"🔍 TRACE: salt_data = {salt_data.hex()}")
                         _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
 
                         # Parse the salt level from BLE data
+                        _LOGGER.debug("🔍 TRACE: Parsing salt level")
                         salt_level = self._parse_salt_level(salt_data)
 
                         # Update sensor state (convert to string for ENUM device class)
+                        _LOGGER.debug(f"🔍 TRACE: salt_level = {salt_level}")
                         self._attr_native_value = str(salt_level)
                         self._update_salt_icon(salt_level)
 
@@ -116,6 +126,7 @@ class BWTSaltLevelSensor(SensorEntity):
 
                     except Exception as read_err:
                         # Handle exception safely with detailed logging
+                        _LOGGER.debug(f"🔍 TRACE: Exception in read_err = {read_err}")
                         error_msg = str(read_err)
                         _LOGGER.error("⚠️ Error reading BLE characteristic (raw): %s", read_err)
                         _LOGGER.error("⚠️ Error type: %s", type(read_err))
@@ -130,6 +141,7 @@ class BWTSaltLevelSensor(SensorEntity):
 
                     finally:
                         # Disconnect from the device
+                        _LOGGER.debug("🔍 TRACE: Disconnecting from device")
                         await client.disconnect()
 
                 else:
@@ -138,6 +150,7 @@ class BWTSaltLevelSensor(SensorEntity):
                     self._attr_icon = "mdi:salt-alert"
 
             except ImportError as import_err:
+                _LOGGER.debug(f"🔍 TRACE: ImportError = {import_err}")
                 _LOGGER.error("❌ bleak or bleak-retry-connector not available: %s", import_err)
                 _LOGGER.warning("💡 Please install bleak and bleak-retry-connector")
                 self._attr_native_value = None
@@ -145,6 +158,7 @@ class BWTSaltLevelSensor(SensorEntity):
 
             except Exception as err:
                 # Handle exception safely with detailed logging
+                _LOGGER.debug(f"🔍 TRACE: Exception in err = {err}")
                 error_msg = str(err)
                 _LOGGER.error("⚠️ Error reading salt level (raw): %s", err)
                 _LOGGER.error("⚠️ Error type: %s", type(err))
@@ -159,6 +173,7 @@ class BWTSaltLevelSensor(SensorEntity):
 
         except Exception as err:
             # Handle exception safely with detailed logging
+            _LOGGER.debug(f"🔍 TRACE: Exception in outer err = {err}")
             error_msg = str(err)
             _LOGGER.error("⚠️ Error reading salt level (raw): %s", err)
             _LOGGER.error("⚠️ Error type: %s", type(err))
