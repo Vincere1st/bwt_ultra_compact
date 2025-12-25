@@ -75,32 +75,71 @@ class BWTSaltLevelSensor(SensorEntity):
                 self._attr_icon = "mdi:salt-off"
                 return
 
-            # Read salt level from BLE characteristic
-            # Note: This is a simplified implementation
-            # In a real scenario, we would read from the actual BLE characteristic
-            # For now, we'll simulate reading from the device
-
+            # Connect to BLE device and read salt level
             _LOGGER.warning("📖 Reading salt level from BLE characteristic...")
 
-            # Simulate reading from BLE (to be replaced with actual BLE reading)
-            # In reality, we would use:
-            # client = await bluetooth.async_ble_device_connect(ble_device)
-            # salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
-            # salt_level = self._parse_salt_level(salt_data)
+            # Connect to the device
+            client = await bluetooth.async_ble_device_connect(ble_device, connectable=True)
 
-            # For now, simulate a successful read with default value
-            simulated_salt_level = 3  # Default medium level
+            if not client:
+                _LOGGER.error("❌ Failed to connect to BLE device")
+                self._attr_native_value = None
+                self._attr_icon = "mdi:salt-alert"
+                return
 
-            # Update sensor state (convert to string for ENUM device class)
-            self._attr_native_value = str(simulated_salt_level)
-            self._update_salt_icon(simulated_salt_level)
+            # Read from the main characteristic
+            try:
+                salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
+                _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
 
-            _LOGGER.warning(f"🧂 Salt level updated: {simulated_salt_level}/5")
+                # Parse the salt level from BLE data
+                salt_level = self._parse_salt_level(salt_data)
+
+                # Update sensor state (convert to string for ENUM device class)
+                self._attr_native_value = str(salt_level)
+                self._update_salt_icon(salt_level)
+
+                _LOGGER.warning(f"🧂 Salt level updated: {salt_level}/5")
+
+            except Exception as read_err:
+                _LOGGER.error("⚠️ Error reading BLE characteristic: %s", read_err)
+                self._attr_native_value = None
+                self._attr_icon = "mdi:salt-alert"
+
+            finally:
+                # Disconnect from the device
+                await client.disconnect()
 
         except Exception as err:
             _LOGGER.error("⚠️ Error reading salt level: %s", err)
             self._attr_native_value = None
             self._attr_icon = "mdi:salt-alert"
+
+    def _parse_salt_level(self, data: bytes) -> int:
+        """Parse salt level from BLE data."""
+        # BWT Ultra Compact salt level protocol:
+        # The device sends the salt level as a single byte (1-5)
+        # If the data is empty or invalid, return default value
+
+        if not data:
+            _LOGGER.warning("⚠️ Empty BLE data received, using default value")
+            return 3
+
+        try:
+            # The salt level is in the first byte
+            level = data[0]
+
+            # Validate the level (must be between 1 and 5)
+            if 1 <= level <= 5:
+                return level
+
+            # If invalid, return default value
+            _LOGGER.warning(f"⚠️ Invalid salt level received: {level}, using default value")
+            return 3
+
+        except (IndexError, ValueError) as err:
+            _LOGGER.error("⚠️ Error parsing BLE data: %s", err)
+            return 3
 
     def _update_salt_icon(self, level: int) -> None:
         """Update icon based on salt level."""
