@@ -75,21 +75,13 @@ class BWTSaltLevelSensor(SensorEntity):
                 self._attr_icon = "mdi:salt-off"
                 return
 
-            # Connect to BLE device and read salt level
+            # Read salt level from BLE characteristic
             _LOGGER.warning("📖 Reading salt level from BLE characteristic...")
 
-            # Connect to the device
-            client = await bluetooth.async_ble_device_connect(ble_device, connectable=True)
-
-            if not client:
-                _LOGGER.error("❌ Failed to connect to BLE device")
-                self._attr_native_value = None
-                self._attr_icon = "mdi:salt-alert"
-                return
-
-            # Read from the main characteristic
+            # Try to read the characteristic directly
             try:
-                salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
+                # Use the device's method to read characteristic
+                salt_data = await ble_device.async_read_characteristic(BLE_MAIN_CHARACTERISTIC_UUID)
                 _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
 
                 # Parse the salt level from BLE data
@@ -105,10 +97,6 @@ class BWTSaltLevelSensor(SensorEntity):
                 _LOGGER.error("⚠️ Error reading BLE characteristic: %s", read_err)
                 self._attr_native_value = None
                 self._attr_icon = "mdi:salt-alert"
-
-            finally:
-                # Disconnect from the device
-                await client.disconnect()
 
         except Exception as err:
             _LOGGER.error("⚠️ Error reading salt level: %s", err)
