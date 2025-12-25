@@ -122,6 +122,8 @@ class BWTSaltLevelSensor(SensorEntity):
                         # Check if read_err is an object (not a string) before checking for details
                         if not isinstance(read_err, str) and hasattr(read_err, 'details'):
                             error_msg = f"{error_msg} - Details: {read_err.details}"
+                        else:
+                            _LOGGER.error("⚠️ Error has no details attribute")
                         _LOGGER.error("⚠️ Error reading BLE characteristic: %s", error_msg)
                         self._attr_native_value = None
                         self._attr_icon = "mdi:salt-alert"
@@ -149,6 +151,8 @@ class BWTSaltLevelSensor(SensorEntity):
                 # Check if err is an object (not a string) before checking for details
                 if not isinstance(err, str) and hasattr(err, 'details'):
                     error_msg = f"{error_msg} - Details: {err.details}"
+                else:
+                    _LOGGER.error("⚠️ Error has no details attribute")
                 _LOGGER.error("⚠️ Error reading salt level: %s", error_msg)
                 self._attr_native_value = None
                 self._attr_icon = "mdi:salt-alert"
