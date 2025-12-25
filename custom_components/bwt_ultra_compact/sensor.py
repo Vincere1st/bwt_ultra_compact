@@ -115,9 +115,12 @@ class BWTSaltLevelSensor(SensorEntity):
                         _LOGGER.warning(f"🧂 Salt level updated: {salt_level}/5")
 
                     except Exception as read_err:
-                        # Handle exception safely
+                        # Handle exception safely with detailed logging
                         error_msg = str(read_err)
-                        if hasattr(read_err, 'details'):
+                        _LOGGER.error("⚠️ Error reading BLE characteristic (raw): %s", read_err)
+                        _LOGGER.error("⚠️ Error type: %s", type(read_err))
+                        # Check if read_err is an object (not a string) before checking for details
+                        if not isinstance(read_err, str) and hasattr(read_err, 'details'):
                             error_msg = f"{error_msg} - Details: {read_err.details}"
                         _LOGGER.error("⚠️ Error reading BLE characteristic: %s", error_msg)
                         self._attr_native_value = None
