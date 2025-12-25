@@ -78,20 +78,37 @@ class BWTSaltLevelSensor(SensorEntity):
             # Read salt level from BLE characteristic
             _LOGGER.warning("📖 Reading salt level from BLE characteristic...")
 
-            # Try to read the characteristic directly
+            # Try to read the characteristic using available methods
             try:
-                # Use the device's method to read characteristic
-                salt_data = await ble_device.async_read_characteristic(BLE_MAIN_CHARACTERISTIC_UUID)
-                _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
+                # Try using bleak if available
+                try:
+                    import bleak
+                    from bleak import BleakClient
 
-                # Parse the salt level from BLE data
-                salt_level = self._parse_salt_level(salt_data)
+                    # Connect to the device using bleak
+                    async with BleakClient(ble_device.address) as client:
+                        if client.is_connected:
+                            # Read the characteristic
+                            salt_data = await client.read_gatt_char(BLE_MAIN_CHARACTERISTIC_UUID)
+                            _LOGGER.warning(f"📊 Raw BLE data received: {salt_data.hex()}")
 
-                # Update sensor state (convert to string for ENUM device class)
-                self._attr_native_value = str(salt_level)
-                self._update_salt_icon(salt_level)
+                            # Parse the salt level from BLE data
+                            salt_level = self._parse_salt_level(salt_data)
 
-                _LOGGER.warning(f"🧂 Salt level updated: {salt_level}/5")
+                            # Update sensor state (convert to string for ENUM device class)
+                            self._attr_native_value = str(salt_level)
+                            self._update_salt_icon(salt_level)
+
+                            _LOGGER.warning(f"🧂 Salt level updated: {salt_level}/5")
+                        else:
+                            _LOGGER.error("❌ Failed to connect to BLE device using bleak")
+                            self._attr_native_value = None
+                            self._attr_icon = "mdi:salt-alert"
+
+                except ImportError:
+                    _LOGGER.error("❌ bleak library not available, using fallback method")
+                    self._attr_native_value = None
+                    self._attr_icon = "mdi:salt-alert"
 
             except Exception as read_err:
                 _LOGGER.error("⚠️ Error reading BLE characteristic: %s", read_err)
