@@ -150,18 +150,14 @@ class BWTSaltLevelSensor(SensorEntity):
                 self._attr_icon = "mdi:salt-alert"
 
             except Exception as err:
-                # Handle exception safely with detailed logging
-                _LOGGER.debug(f"🔍 TRACE: Exception in err = {err}")
-                error_msg = str(err)
-                _LOGGER.error("⚠️ Error reading salt level: %s", error_msg)
+                # Handle exception safely
+                _LOGGER.error("⚠️ Error reading salt level: %s", str(err))
                 self._attr_native_value = None
                 self._attr_icon = "mdi:salt-alert"
 
         except Exception as err:
-            # Handle exception safely with detailed logging
-            _LOGGER.debug(f"🔍 TRACE: Exception in outer err = {err}")
-            error_msg = str(err)
-            _LOGGER.error("⚠️ Error reading salt level: %s", error_msg)
+            # Handle exception safely
+            _LOGGER.error("⚠️ Error reading salt level: %s", str(err))
             self._attr_native_value = None
             self._attr_icon = "mdi:salt-alert"
 
