@@ -141,8 +141,7 @@ class BWTSaltLevelSensor(SensorEntity):
                     self._attr_icon = "mdi:salt-alert"
 
             except ImportError as import_err:
-                _LOGGER.debug(f"🔍 TRACE: ImportError = {import_err}")
-                _LOGGER.error("❌ bleak or bleak-retry-connector not available: %s", import_err)
+                _LOGGER.error("❌ bleak or bleak-retry-connector not available: %s", str(import_err))
                 _LOGGER.warning("💡 Please install bleak and bleak-retry-connector")
                 self._attr_native_value = None
                 self._attr_icon = "mdi:salt-alert"
