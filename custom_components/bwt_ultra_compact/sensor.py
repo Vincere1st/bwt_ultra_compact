@@ -128,13 +128,6 @@ class BWTSaltLevelSensor(SensorEntity):
                         # Handle exception safely with detailed logging
                         _LOGGER.debug(f"🔍 TRACE: Exception in read_err = {read_err}")
                         error_msg = str(read_err)
-                        _LOGGER.error("⚠️ Error reading BLE characteristic (raw): %s", read_err)
-                        _LOGGER.error("⚠️ Error type: %s", type(read_err))
-                        # Check if read_err is an object (not a string) before checking for details
-                        if not isinstance(read_err, str) and hasattr(read_err, 'details'):
-                            error_msg = f"{error_msg} - Details: {read_err.details}"
-                        else:
-                            _LOGGER.error("⚠️ Error has no details attribute")
                         _LOGGER.error("⚠️ Error reading BLE characteristic: %s", error_msg)
                         self._attr_native_value = None
                         self._attr_icon = "mdi:salt-alert"
@@ -160,13 +153,6 @@ class BWTSaltLevelSensor(SensorEntity):
                 # Handle exception safely with detailed logging
                 _LOGGER.debug(f"🔍 TRACE: Exception in err = {err}")
                 error_msg = str(err)
-                _LOGGER.error("⚠️ Error reading salt level (raw): %s", err)
-                _LOGGER.error("⚠️ Error type: %s", type(err))
-                # Check if err is an object (not a string) before checking for details
-                if not isinstance(err, str) and hasattr(err, 'details'):
-                    error_msg = f"{error_msg} - Details: {err.details}"
-                else:
-                    _LOGGER.error("⚠️ Error has no details attribute")
                 _LOGGER.error("⚠️ Error reading salt level: %s", error_msg)
                 self._attr_native_value = None
                 self._attr_icon = "mdi:salt-alert"
@@ -175,13 +161,6 @@ class BWTSaltLevelSensor(SensorEntity):
             # Handle exception safely with detailed logging
             _LOGGER.debug(f"🔍 TRACE: Exception in outer err = {err}")
             error_msg = str(err)
-            _LOGGER.error("⚠️ Error reading salt level (raw): %s", err)
-            _LOGGER.error("⚠️ Error type: %s", type(err))
-            # Check if err is an object (not a string) before checking for details
-            if not isinstance(err, str) and hasattr(err, 'details'):
-                error_msg = f"{error_msg} - Details: {err.details}"
-            else:
-                _LOGGER.error("⚠️ Error has no details attribute")
             _LOGGER.error("⚠️ Error reading salt level: %s", error_msg)
             self._attr_native_value = None
             self._attr_icon = "mdi:salt-alert"
