@@ -188,7 +188,9 @@ class BWTSaltLevelSensor(SensorEntity):
             return 3
 
         except (IndexError, ValueError) as err:
-            _LOGGER.error("⚠️ Error parsing BLE data: %s", err)
+            # Convert error to string to avoid AttributeError
+            error_msg = str(err)
+            _LOGGER.error("⚠️ Error parsing BLE data: %s", error_msg)
             return 3
 
     def _update_salt_icon(self, level: int) -> None:
