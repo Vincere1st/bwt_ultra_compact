@@ -1,6 +1,7 @@
 {
   "domain": "bwt_ultra_compact",
   "name": "BWT Ultra Compact",
+  "brand": "bwt_perla",
   "codeowners": ["@Vincere1st"],
   "config_flow": true,
   "dependencies": ["bluetooth_adapters"],
