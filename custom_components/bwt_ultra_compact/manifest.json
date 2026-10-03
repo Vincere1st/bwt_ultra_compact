@@ -1,9 +1,12 @@
 {
   "domain": "bwt_ultra_compact",
   "name": "BWT Ultra Compact",
-  "documentation": "https://github.com/Vincere1st/bwt_ultra_compact",
-  "issue_tracker": "https://github.com/Vincere1st/bwt_ultra_compact/issues",
+  "codeowners": ["@Vincere1st"],
   "config_flow": true,
-  "version": "1.0.2",
-  "homeassistant": "2025.12.0"
+  "dependencies": ["bluetooth_adapters"],
+  "documentation": "https://github.com/Vincere1st/bwt_ultra_compact",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Vincere1st/bwt_ultra_compact/issues",
+  "version": "2.0.0"
 }

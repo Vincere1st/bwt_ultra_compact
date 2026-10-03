@@ -1,21 +1,9 @@
 """Constants for the BWT Ultra Compact integration."""
-from __future__ import annotations
+from datetime import timedelta
 
 DOMAIN = "bwt_ultra_compact"
 
-# BLE Constants
-BLE_SERVICE_UUID = "D973F2E0-B19E-11E2-9E96-0800200C9A66"
-BLE_MAIN_CHARACTERISTIC_UUID = "D973F2E1-B19E-11E2-9E96-0800200C9A66"
-BLE_SECONDARY_CHARACTERISTIC_UUID = "D973F2E2-B19E-11E2-9E96-0800200C9A66"
-BLE_BROADCAST_CHARACTERISTIC_UUID = "D973F2E3-B19E-11E2-9E96-0800200C9A66"
-BLE_ADDITIONAL_CHARACTERISTIC_UUID = "D973F2E4-B19E-11E2-9E96-0800200C9A66"
+# Perla Blue protocol: F2E3 holds the current state (20 bytes, read).
+CHAR_STATE = "d973f2e3-b19e-11e2-9e96-0800200c9a66"
 
-# Salt level sensor
-CONF_SALT_LEVEL = "salt_level"
-
-# Configuration
-CONF_MAC_ADDRESS = "mac_address"
-CONF_PASSKEY = "passkey"
-
-# Default values
-DEFAULT_PASSKEY = "123456"
+SCAN_INTERVAL = timedelta(minutes=5)

@@ -1,95 +1,39 @@
-"""Binary sensor platform for BWT Ultra Compact integration."""
+"""Binary sensor: salt alarm reported by the softener."""
 from __future__ import annotations
 
-import logging
-
 from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
     BinarySensorDeviceClass,
+    BinarySensorEntity,
+    BinarySensorEntityDescription,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .coordinator import BwtConfigEntry
+from .entity import BwtEntity
 
-_LOGGER = logging.getLogger(__name__)
+ALARM = BinarySensorEntityDescription(
+    key="salt_alarm",
+    translation_key="salt_alarm",
+    device_class=BinarySensorDeviceClass.PROBLEM,
+)
+
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant, entry: BwtConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Set up the BWT Ultra Compact binary sensors."""
-    _LOGGER.warning("🔄 Setting up BWT Ultra Compact binary sensors")
+    """Set up binary sensors."""
+    async_add_entities([BwtAlarm(entry.runtime_data)])
 
-    # Create connection status sensor
-    connection_sensor = BWTConnectionSensor(hass, entry)
-    async_add_entities([connection_sensor])
 
-    _LOGGER.warning("✅ BWT Ultra Compact binary sensors setup completed")
+class BwtAlarm(BwtEntity, BinarySensorEntity):
+    """Salt alarm ("verif sel")."""
 
-class BWTConnectionSensor(BinarySensorEntity):
-    """Representation of a BWT Ultra Compact connection status sensor."""
+    entity_description = ALARM
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
-        """Initialize the connection sensor."""
-        self.hass = hass
-        self._entry = entry
-        self._attr_name = f"BWT Ultra Compact Connection"
-        self._attr_unique_id = f"bwt_ultra_compact_connection_{entry.entry_id}"
-        self._attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
-        self._attr_is_on = False  # Default to disconnected
-
-        # Get initial connection status from stored data
-        if DOMAIN in hass.data:
-            entry_data = hass.data[DOMAIN].get(entry.entry_id, {})
-            self._update_connection_status(entry_data.get("connection_status", "initializing"))
-
-    def _update_connection_status(self, status: str) -> None:
-        """Update the connection status."""
-        if status == "connected":
-            self._attr_is_on = True
-            self._attr_icon = "mdi:bluetooth-connect"
-        elif status == "device_not_found":
-            self._attr_is_on = False
-            self._attr_icon = "mdi:bluetooth-off"
-        elif status == "connection_error":
-            self._attr_is_on = False
-            self._attr_icon = "mdi:bluetooth-alert"
-        else:  # initializing or unknown
-            self._attr_is_on = False
-            self._attr_icon = "mdi:bluetooth-searching"
-
-    async def async_update(self) -> None:
-        """Update the connection status."""
-        if DOMAIN in self.hass.data:
-            entry_data = self.hass.data[DOMAIN].get(self._entry.entry_id, {})
-            current_status = entry_data.get("connection_status", "initializing")
-
-            _LOGGER.debug("Updating BWT connection sensor - status: %s", current_status)
-            self._update_connection_status(current_status)
-
-            if current_status == "connected":
-                _LOGGER.warning("🔵 BWT Connection Sensor: Device CONNECTED")
-            elif current_status == "device_not_found":
-                _LOGGER.warning("🔴 BWT Connection Sensor: Device NOT FOUND")
-            else:
-                _LOGGER.warning("🟡 BWT Connection Sensor: Status - %s", current_status)
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, ALARM.key)
 
     @property
-    def extra_state_attributes(self) -> dict[str, str]:
-        """Return additional state attributes."""
-        if DOMAIN in self.hass.data:
-            entry_data = self.hass.data[DOMAIN].get(self._entry.entry_id, {})
-            return {
-                "mac_address": entry_data.get("mac_address", "unknown"),
-                "status": entry_data.get("connection_status", "unknown"),
-                "friendly_name": self._attr_name
-            }
-        return {"status": "initializing"}
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return True
+    def is_on(self) -> bool:
+        return self.coordinator.data.alarm

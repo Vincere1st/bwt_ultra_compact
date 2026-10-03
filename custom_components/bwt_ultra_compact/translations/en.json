@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BWT Ultra Compact",
+        "description": "Enter the Bluetooth MAC address of the softener. It must be in range of a Bluetooth adapter or proxy, and the BWT app must be closed.",
+        "data": {
+          "address": "MAC address"
+        }
+      }
+    },
+    "error": {
+      "invalid_address": "Invalid MAC address (format AA:BB:CC:DD:EE:FF).",
+      "cannot_connect": "Cannot read the softener. Check range, close the BWT app, retry."
+    },
+    "abort": {
+      "already_configured": "This softener is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "salt_remaining": {
+        "name": "Salt remaining"
+      },
+      "salt_percentage": {
+        "name": "Salt level"
+      },
+      "rssi": {
+        "name": "Bluetooth signal"
+      }
+    },
+    "binary_sensor": {
+      "salt_alarm": {
+        "name": "Salt alarm"
+      }
+    }
+  }
+}

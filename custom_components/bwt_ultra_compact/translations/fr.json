@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BWT Ultra Compact",
+        "description": "Saisis l'adresse MAC Bluetooth de l'adoucisseur. Il doit être à portée d'un adaptateur ou proxy Bluetooth, et l'appli BWT doit être fermée.",
+        "data": {
+          "address": "Adresse MAC"
+        }
+      }
+    },
+    "error": {
+      "invalid_address": "Adresse MAC invalide (format AA:BB:CC:DD:EE:FF).",
+      "cannot_connect": "Lecture impossible. Vérifie la portée, ferme l'appli BWT, réessaie."
+    },
+    "abort": {
+      "already_configured": "Cet adoucisseur est déjà configuré."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "salt_remaining": {
+        "name": "Sel restant"
+      },
+      "salt_percentage": {
+        "name": "Niveau de sel"
+      },
+      "rssi": {
+        "name": "Signal Bluetooth"
+      }
+    },
+    "binary_sensor": {
+      "salt_alarm": {
+        "name": "Alarme sel"
+      }
+    }
+  }
+}
