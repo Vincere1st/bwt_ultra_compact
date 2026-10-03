@@ -1,4 +1,5 @@
 # BWT Ultra Compact (CPED) for Home Assistant
+<img src="pictures/logo.png" width="30">
 
 Local Bluetooth integration (no cloud, no account, no PIN) for the CPED / BWT Ultra Compact softener.
 
